@@ -27,10 +27,35 @@ public interface BootstrapService {
 
   /**
    * Returns the cluster messaging service.
+   * <p>
+   * This method is deprecated and returns the messaging service returned by {@link #getClusterMessagingService()}.
+   *
+   * @return the cluster messaging service
+   * @deprecated since 3.0.6
+   */
+  @Deprecated
+  MessagingService getMessagingService();
+
+  /**
+   * Returns the bootstrap messaging service.
+   *
+   * @return the bootstrap messaging service
+   */
+  MessagingService getBootstrapMessagingService();
+
+  /**
+   * Returns the cluster messaging service.
    *
    * @return the cluster messaging service
    */
-  MessagingService getMessagingService();
+  MessagingService getClusterMessagingService();
+
+  /**
+   * Returns the messaging service used for cluster membership.
+   *
+   * @return the messaging service used for cluster membership
+   */
+  MessagingService getMembershipMessagingService();
 
   /**
    * Returns the cluster broadcast service

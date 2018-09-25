@@ -15,11 +15,13 @@
  */
 package io.atomix.cluster;
 
+import com.google.common.collect.Lists;
 import io.atomix.cluster.discovery.NodeDiscoveryProvider;
 import io.atomix.utils.Builder;
 import io.atomix.utils.net.Address;
 
 import java.time.Duration;
+import java.util.Collection;
 import java.util.Properties;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -102,6 +104,72 @@ public class AtomixClusterBuilder implements Builder<AtomixCluster> {
   }
 
   /**
+   * Sets the local interface to which to bind the node.
+   *
+   * @param iface the local interface to which to bind the node
+   * @return the Atomix cluster builder
+   */
+  public AtomixClusterBuilder withInterface(String iface) {
+    config.setInterfaces(Lists.newArrayList(iface));
+    return this;
+  }
+
+  /**
+   * Sets the local interface(s) to which to bind the node.
+   *
+   * @param ifaces the local interface(s) to which to bind the node
+   * @return the Atomix cluster builder
+   */
+  public AtomixClusterBuilder withInterfaces(String... ifaces) {
+    config.setInterfaces(Lists.newArrayList(ifaces));
+    return this;
+  }
+
+  /**
+   * Sets the local interface(s) to which to bind the node.
+   *
+   * @param ifaces the local interface(s) to which to bind the node
+   * @return the Atomix cluster builder
+   */
+  public AtomixClusterBuilder withInterfaces(Collection<String> ifaces) {
+    config.setInterfaces(Lists.newArrayList(ifaces));
+    return this;
+  }
+
+  /**
+   * Sets the hostname to broadcast to other members of the cluster.
+   *
+   * @param hostname the local member hostname
+   * @return the cluster builder
+   */
+  public AtomixClusterBuilder withHostname(String hostname) {
+    config.getNodeConfig().setHostname(hostname);
+    return this;
+  }
+
+  /**
+   * Sets the cluster membership port.
+   *
+   * @param membershipPort the cluster membership port
+   * @return the cluster builder
+   */
+  public AtomixClusterBuilder withMembershipPort(int membershipPort) {
+    config.getNodeConfig().setMembershipPort(membershipPort);
+    return this;
+  }
+
+  /**
+   * Sets the general communication port.
+   *
+   * @param communicationPort the cluster communication port
+   * @return the general communication port
+   */
+  public AtomixClusterBuilder withCommunicationPort(int communicationPort) {
+    config.getNodeConfig().setCommunicationPort(communicationPort);
+    return this;
+  }
+
+  /**
    * Sets the member address.
    * <p>
    * The constructed {@link AtomixCluster} will bind to the given address for intra-cluster communication. The format
@@ -110,7 +178,9 @@ public class AtomixClusterBuilder implements Builder<AtomixCluster> {
    * @param address a host:port tuple
    * @return the cluster builder
    * @throws io.atomix.utils.net.MalformedAddressException if a valid {@link Address} cannot be constructed from the arguments
+   * @deprecated since 3.0.6
    */
+  @Deprecated
   public AtomixClusterBuilder withAddress(String address) {
     return withAddress(Address.from(address));
   }
@@ -125,7 +195,9 @@ public class AtomixClusterBuilder implements Builder<AtomixCluster> {
    * @param port the port number
    * @return the cluster builder
    * @throws io.atomix.utils.net.MalformedAddressException if a valid {@link Address} cannot be constructed from the arguments
+   * @deprecated since 3.0.6
    */
+  @Deprecated
   public AtomixClusterBuilder withAddress(String host, int port) {
     return withAddress(Address.from(host, port));
   }
@@ -138,7 +210,9 @@ public class AtomixClusterBuilder implements Builder<AtomixCluster> {
    * @param port the port number
    * @return the cluster builder
    * @throws io.atomix.utils.net.MalformedAddressException if a valid {@link Address} cannot be constructed from the arguments
+   * @deprecated since 3.0.6
    */
+  @Deprecated
   public AtomixClusterBuilder withAddress(int port) {
     return withAddress(Address.from(port));
   }
@@ -151,9 +225,13 @@ public class AtomixClusterBuilder implements Builder<AtomixCluster> {
    *
    * @param address the member address
    * @return the cluster builder
+   * @deprecated since 3.0.6
    */
+  @Deprecated
   public AtomixClusterBuilder withAddress(Address address) {
-    config.getNodeConfig().setAddress(address);
+    config.getNodeConfig().setHostname(address.host());
+    config.getNodeConfig().setMembershipPort(address.port());
+    config.getNodeConfig().setCommunicationPort(address.port());
     return this;
   }
 

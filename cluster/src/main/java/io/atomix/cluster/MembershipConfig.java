@@ -33,6 +33,15 @@ public class MembershipConfig implements Config {
   private int reachabilityThreshold = DEFAULT_REACHABILITY_THRESHOLD;
   private Duration reachabilityTimeout = Duration.ofMillis(DEFAULT_REACHABILITY_TIMEOUT);
 
+  public int getBroadcastPort() {
+    return broadcastPort;
+  }
+
+  public MembershipConfig setBroadcastPort(int broadcastPort) {
+    this.broadcastPort = broadcastPort;
+    return this;
+  }
+
   /**
    * Returns the reachability broadcast interval.
    *

@@ -37,7 +37,9 @@ public class StatefulMember extends Member {
 
   public StatefulMember(
       MemberId id,
-      Address address,
+      String hostname,
+      int membershipPort,
+      int communicationPort,
       String zone,
       String rack,
       String host,

@@ -23,7 +23,8 @@ import io.atomix.utils.net.Address;
  */
 public class NodeConfig implements Config {
   private NodeId id = NodeId.anonymous();
-  private Address address;
+  private String hostname;
+  private int membershipPort = 5679;
 
   /**
    * Returns the node identifier.
@@ -56,12 +57,54 @@ public class NodeConfig implements Config {
   }
 
   /**
+   * Returns the node hostname.
+   *
+   * @return the node hostname
+   */
+  public String getHostname() {
+    return hostname;
+  }
+
+  /**
+   * Sets the node hostname.
+   *
+   * @param hostname the node hostname
+   * @return the node configuration
+   */
+  public NodeConfig setHostname(String hostname) {
+    this.hostname = hostname;
+    return this;
+  }
+
+  /**
+   * Returns the membership port.
+   *
+   * @return the membership port
+   */
+  public int getMembershipPort() {
+    return membershipPort;
+  }
+
+  /**
+   * Sets the membership port.
+   *
+   * @param membershipPort the membership port
+   * @return the node configuration
+   */
+  public NodeConfig setMembershipPort(int membershipPort) {
+    this.membershipPort = membershipPort;
+    return this;
+  }
+
+  /**
    * Returns the node address.
    *
    * @return the node address
+   * @deprecated since 3.0.6
    */
+  @Deprecated
   public Address getAddress() {
-    return address;
+    return Address.from(hostname, membershipPort);
   }
 
   /**
@@ -69,7 +112,9 @@ public class NodeConfig implements Config {
    *
    * @param address the node address
    * @return the node configuration
+   * @deprecated since 3.0.6
    */
+  @Deprecated
   public NodeConfig setAddress(String address) {
     return setAddress(Address.from(address));
   }
@@ -79,9 +124,12 @@ public class NodeConfig implements Config {
    *
    * @param address the node address
    * @return the node configuration
+   * @deprecated since 3.0.6
    */
+  @Deprecated
   public NodeConfig setAddress(Address address) {
-    this.address = address;
+    setHostname(address.host());
+    setMembershipPort(address.port());
     return this;
   }
 }

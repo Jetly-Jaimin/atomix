@@ -25,6 +25,7 @@ import java.util.Properties;
  */
 public class MemberConfig extends NodeConfig {
   private MemberId id = MemberId.anonymous();
+  private int communicationPort = 5680;
   private String zone;
   private String rack;
   private String host;
@@ -81,8 +82,7 @@ public class MemberConfig extends NodeConfig {
    * @return the member configuration
    */
   public MemberConfig setAddress(String address) {
-    super.setAddress(address);
-    return this;
+    return setAddress(Address.from(address));
   }
 
   /**
@@ -92,7 +92,29 @@ public class MemberConfig extends NodeConfig {
    * @return the member configuration
    */
   public MemberConfig setAddress(Address address) {
-    super.setAddress(address);
+    setHostname(address.host());
+    setMembershipPort(address.port());
+    setCommunicationPort(address.port());
+    return this;
+  }
+
+  /**
+   * Returns the communication port.
+   *
+   * @return the communication port
+   */
+  public int getCommunicationPort() {
+    return communicationPort;
+  }
+
+  /**
+   * Sets the communication port.
+   *
+   * @param communicationPort the communication port
+   * @return the node configuration
+   */
+  public MemberConfig setCommunicationPort(int communicationPort) {
+    this.communicationPort = communicationPort;
     return this;
   }
 

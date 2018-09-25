@@ -18,6 +18,9 @@ package io.atomix.cluster;
 import io.atomix.cluster.discovery.NodeDiscoveryConfig;
 import io.atomix.utils.config.Config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -28,6 +31,7 @@ public class ClusterConfig implements Config {
 
   private String clusterId = DEFAULT_CLUSTER_NAME;
   private MemberConfig nodeConfig = new MemberConfig();
+  private List<String> interfaces = new ArrayList<>();
   private NodeDiscoveryConfig discoveryConfig;
   private MulticastConfig multicastConfig = new MulticastConfig();
   private MembershipConfig membershipConfig = new MembershipConfig();
@@ -49,6 +53,25 @@ public class ClusterConfig implements Config {
    */
   public ClusterConfig setClusterId(String clusterId) {
     this.clusterId = clusterId;
+    return this;
+  }
+
+  /**
+   * Returns the set of interfaces to which this node binds.
+   *
+   * @return the set of interfaces to which this node binds
+   */
+  public List<String> getInterfaces() {
+    return interfaces;
+  }
+
+  /**
+   * Sets the set of interfaces to which this node binds.
+   *
+   * @param interfaces the set of interfaces to which this node binds
+   */
+  public ClusterConfig setInterfaces(List<String> interfaces) {
+    this.interfaces = interfaces;
     return this;
   }
 

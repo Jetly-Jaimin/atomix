@@ -310,6 +310,36 @@ public class AtomixBuilder extends AtomixClusterBuilder {
   }
 
   @Override
+  public AtomixBuilder withInterface(String iface) {
+    super.withInterface(iface);
+    return this;
+  }
+
+  @Override
+  public AtomixBuilder withInterfaces(String... ifaces) {
+    super.withInterfaces(ifaces);
+    return this;
+  }
+
+  @Override
+  public AtomixBuilder withHostname(String hostname) {
+    super.withHostname(hostname);
+    return this;
+  }
+
+  @Override
+  public AtomixBuilder withMembershipPort(int membershipPort) {
+    super.withMembershipPort(membershipPort);
+    return this;
+  }
+
+  @Override
+  public AtomixBuilder withCommunicationPort(int communicationPort) {
+    super.withCommunicationPort(communicationPort);
+    return this;
+  }
+
+  @Override
   public AtomixBuilder withAddress(String address) {
     super.withAddress(address);
     return this;

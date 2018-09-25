@@ -33,6 +33,7 @@ public interface MessagingService {
    *
    * @return the local address
    */
+  @Deprecated
   Address address();
 
   /**

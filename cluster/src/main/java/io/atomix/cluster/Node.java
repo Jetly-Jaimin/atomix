@@ -21,6 +21,7 @@ import io.atomix.utils.net.Address;
 import java.util.Objects;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -38,16 +39,21 @@ public class Node implements Configured<NodeConfig> {
   }
 
   private final NodeId id;
-  private final Address address;
+  private final String hostname;
+  private final int membershipPort;
+  private transient volatile Address membershipAddress;
 
   public Node(NodeConfig config) {
     this.id = config.getId();
-    this.address = checkNotNull(config.getAddress(), "address cannot be null");
+    this.hostname = config.getHostname();
+    this.membershipPort = config.getMembershipPort();
   }
 
-  protected Node(NodeId id, Address address) {
+  protected Node(NodeId id, String hostname, int membershipPort) {
+    checkArgument(membershipPort > 0, "membershipPort must be positive");
     this.id = checkNotNull(id, "id cannot be null");
-    this.address = checkNotNull(address, "address cannot be null");
+    this.hostname = checkNotNull(hostname, "hostname cannot be null");
+    this.membershipPort = membershipPort;
   }
 
   /**
@@ -60,24 +66,60 @@ public class Node implements Configured<NodeConfig> {
   }
 
   /**
+   * Returns the node hostname.
+   *
+   * @return the node's hostname
+   */
+  public String hostname() {
+    return hostname;
+  }
+
+  /**
+   * Returns the node's membership port.
+   *
+   * @return the node's membership port
+   */
+  public int membershipPort() {
+    return membershipPort;
+  }
+
+  /**
+   * Returns the address through which the node participates in the membership protocol.
+   *
+   * @return the address through which the node participates in the membership protocol
+   */
+  public Address membershipAddress() {
+    if (membershipAddress == null) {
+      synchronized (this) {
+        if (membershipAddress == null) {
+          membershipAddress = Address.from(hostname, membershipPort);
+        }
+      }
+    }
+    return membershipAddress;
+  }
+
+  /**
    * Returns the node address.
    *
    * @return the node address
    */
+  @Deprecated
   public Address address() {
-    return address;
+    return membershipAddress();
   }
 
   @Override
   public NodeConfig config() {
     return new NodeConfig()
         .setId(id)
-        .setAddress(address);
+        .setHostname(hostname)
+        .setMembershipPort(membershipPort);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, address);
+    return Objects.hash(id, hostname, membershipPort);
   }
 
   @Override
@@ -94,7 +136,8 @@ public class Node implements Configured<NodeConfig> {
   public String toString() {
     return toStringHelper(Node.class)
         .add("id", id)
-        .add("address", address)
+        .add("hostname", hostname)
+        .add("membershipPort", membershipPort)
         .omitNullValues()
         .toString();
   }

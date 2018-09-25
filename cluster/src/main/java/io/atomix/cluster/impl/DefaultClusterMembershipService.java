@@ -15,6 +15,10 @@
  */
 package io.atomix.cluster.impl;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import io.atomix.cluster.BootstrapService;
@@ -64,7 +68,40 @@ public class DefaultClusterMembershipService
 
   private static final String METADATA_BROADCAST = "atomix-cluster-metadata";
 
-  private static final Serializer SERIALIZER = Serializer.using(
+  private static class StatefulMemberV1Serializer extends com.esotericsoftware.kryo.Serializer<StatefulMember> {
+    @Override
+    public void write(Kryo kryo, Output output, StatefulMember statefulMember) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public StatefulMember read(Kryo kryo, Input input, Class<StatefulMember> type) {
+      StatefulMemberV1 memberv1 = (StatefulMemberV1) new FieldSerializer<>(kryo, type).read(kryo, input, (Class) type);
+      StatefulMember member = new StatefulMember(
+          memberv1.id,
+          memberv1.address.host(),
+          memberv1.address.port(),
+          memberv1.address.port(),
+          memberv1.zone,
+          memberv1.rack,
+          memberv1.host,
+          memberv1.properties,
+          memberv1.version);
+      member.setReachable(memberv1.reachable);
+      member.setActive(memberv1.active);
+      return member;
+    }
+  }
+
+  private static final Serializer SERIALIZER_V1 = Serializer.using(Namespace.builder()
+      .register(Namespaces.BASIC)
+      .nextId(Namespaces.BEGIN_USER_CUSTOM_ID)
+      .register(MemberId.class)
+      .register(new StatefulMemberV1Serializer(), StatefulMemberV1.class)
+      .register(new AddressSerializer(), Address.class)
+      .build());
+
+  private static final Serializer SERIALIZER_V2 = Serializer.using(
       Namespace.builder()
           .register(Namespaces.BASIC)
           .nextId(Namespaces.BEGIN_USER_CUSTOM_ID)
@@ -101,7 +138,8 @@ public class DefaultClusterMembershipService
     this.config = checkNotNull(config);
     this.localMember = new StatefulMember(
         localMember.id(),
-        localMember.address(),
+        localMember.hostname(),
+        localMember.
         localMember.zone(),
         localMember.rack(),
         localMember.host(),

@@ -128,7 +128,7 @@ public class DefaultClusterCommunicationService implements ManagedClusterCommuni
     if (member == null) {
       return Futures.exceptionalFuture(CONNECT_EXCEPTION);
     }
-    return messagingService.sendAsync(member.address(), subject, payload);
+    return messagingService.sendAsync(member.communicationAddress(), subject, payload);
   }
 
   private CompletableFuture<byte[]> sendAndReceive(String subject, byte[] payload, MemberId toMemberId, Duration timeout) {
@@ -136,7 +136,7 @@ public class DefaultClusterCommunicationService implements ManagedClusterCommuni
     if (member == null) {
       return Futures.exceptionalFuture(CONNECT_EXCEPTION);
     }
-    return messagingService.sendAndReceive(member.address(), subject, payload, timeout);
+    return messagingService.sendAndReceive(member.communicationAddress(), subject, payload, timeout);
   }
 
   @Override

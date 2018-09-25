@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -107,6 +108,8 @@ public class Member extends Node {
   }
 
   private final MemberId id;
+  private final int communicationPort;
+  private transient volatile Address communicationAddress;
   private final String zone;
   private final String rack;
   private final String host;
@@ -115,6 +118,7 @@ public class Member extends Node {
   public Member(MemberConfig config) {
     super(config);
     this.id = config.getId();
+    this.communicationPort = config.getCommunicationPort();
     this.zone = config.getZone();
     this.rack = config.getRack();
     this.host = config.getHost();
@@ -122,13 +126,15 @@ public class Member extends Node {
     properties.putAll(config.getProperties());
   }
 
-  protected Member(MemberId id, Address address) {
-    this(id, address, null, null, null, new Properties());
+  protected Member(MemberId id, String hostname, int membershipPort) {
+    this(id, hostname, membershipPort, membershipPort, null, null, null, new Properties());
   }
 
-  protected Member(MemberId id, Address address, String zone, String rack, String host, Properties properties) {
-    super(id, address);
+  protected Member(MemberId id, String hostname, int membershipPort, int communicationPort, String zone, String rack, String host, Properties properties) {
+    super(id, hostname, membershipPort);
+    checkArgument(communicationPort > 0, "communicationPort must be positive");
     this.id = checkNotNull(id, "id cannot be null");
+    this.communicationPort = communicationPort;
     this.zone = zone;
     this.rack = rack;
     this.host = host;
@@ -139,6 +145,31 @@ public class Member extends Node {
   @Override
   public MemberId id() {
     return id;
+  }
+
+  /**
+   * Returns the node's communication port.
+   *
+   * @return the node's communication port
+   */
+  public int communicationPort() {
+    return communicationPort;
+  }
+
+  /**
+   * Returns the address through which the member communicates with peers.
+   *
+   * @return the address through which the member communicates with peers
+   */
+  public Address communicationAddress() {
+    if (communicationAddress == null) {
+      synchronized (this) {
+        if (communicationAddress == null) {
+          communicationAddress = Address.from(hostname(), communicationPort());
+        }
+      }
+    }
+    return communicationAddress;
   }
 
   /**
@@ -238,7 +269,9 @@ public class Member extends Node {
   public String toString() {
     return toStringHelper(Member.class)
         .add("id", id())
-        .add("address", address())
+        .add("hostname", hostname())
+        .add("membershipPort", membershipPort())
+        .add("communicationPort", communicationPort())
         .add("zone", zone())
         .add("rack", rack())
         .add("host", host())

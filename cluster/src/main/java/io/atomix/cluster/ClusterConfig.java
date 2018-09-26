@@ -27,6 +27,7 @@ public class ClusterConfig implements Config {
   private static final String DEFAULT_CLUSTER_NAME = "atomix";
 
   private String clusterId = DEFAULT_CLUSTER_NAME;
+  private BindConfig bindConfig = new BindConfig();
   private MemberConfig nodeConfig = new MemberConfig();
   private NodeDiscoveryConfig discoveryConfig;
   private MulticastConfig multicastConfig = new MulticastConfig();
@@ -49,6 +50,26 @@ public class ClusterConfig implements Config {
    */
   public ClusterConfig setClusterId(String clusterId) {
     this.clusterId = clusterId;
+    return this;
+  }
+
+  /**
+   * Returns the local network configuration.
+   *
+   * @return the local network configuration
+   */
+  public BindConfig getBindConfig() {
+    return bindConfig;
+  }
+
+  /**
+   * Sets the local network configuration.
+   *
+   * @param bindConfig the local network configuration
+   * @return the cluster configuration
+   */
+  public ClusterConfig setBindConfig(BindConfig bindConfig) {
+    this.bindConfig = bindConfig;
     return this;
   }
 
